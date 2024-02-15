@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-
+import time
+import smbus
+import spidev
 
 ADCDATA = 0x00
 CONFIG0 = 0x01
@@ -30,11 +32,16 @@ def array_to_hex(buf):
 
 def spi_xfer_loud(spi, buf):
     print(f"SPI transmitting: {''.join([f'{x:02x} ' for x in buf])}")
-    spi.xfer(buf)
+    buf = spi.xfer(buf)
     print(f"SPI recieved:     {''.join([f'{x:02x} ' for x in buf])}")
     print()
 
 def mcp3564_init(spi):
+    # Sanity check: read the LOCK register back.
+    print("Reading LOCK register:")
+    spi_xfer_loud(spi, [mcp3564_make_cmd(LOCK, 'r'), 0])    
+    print()
+    
     # CONFIG0: use internal oscillator, no current bias, turn on ADC in standby
     buf = [mcp3564_make_cmd(CONFIG0, 'w'), (0b10 << 4) | (0b10 << 0)]
     spi_xfer_loud(spi, buf)
@@ -75,10 +82,16 @@ def mcp3564_read_differential_channel_blocking(spi, channel_no):
     spi.xfer(buf)
 
     # poll conversion done flag
+    tstart = time.clock_gettime(time.CLOCK_MONOTONIC)
     while (True):
         buf = [mcp3564_make_cmd(IRQ, 'r'), 0]
-        spi.xfer(buf)
+        buf = spi.xfer(buf)
+        print(f"IRQ = {buf[1]:02x}")
         if (not(buf[1] & (1 << 6))):
+            break
+        tnow = time.clock_gettime(time.CLOCK_MONOTONIC)
+        if ((tnow - tstart) > 0.01):
+            print("warning: conversion timed out")
             break
         time.sleep(0.001)
 

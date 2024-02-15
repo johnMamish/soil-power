@@ -1,3 +1,9 @@
+import RPi.GPIO as GPIO
+import smbus
+import spidev
+import time
+
+
 class SoilBoard:
     def __init__(self, voc_switch_gpio=25, isense_rsel_gpio=24):
         self.voc_switch_gpio = voc_switch_gpio

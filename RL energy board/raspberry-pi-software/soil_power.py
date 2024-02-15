@@ -9,6 +9,7 @@ from datetime import datetime
 
 from ad5272 import *
 from mcp356x import *
+from soilboard import *
 
 # initialize SPI and devices
 sb = SoilBoard()
@@ -18,15 +19,19 @@ i2c = smbus.SMBus(1)
 
 spi = spidev.SpiDev()
 spi.open(0, 0)
-spi.max_speed_hz = 100000
+spi.max_speed_hz = 1000000
 spi.mode = 0
 
 mcp3564_init(spi)
 
 sb.disconnect_mfc()
 time.sleep(0.03)
-v = mcp3564_read_differential_channel_blocking(spi, 1)
-print(f"open circuit voltage = {v:1.5f}")
+
+# sanity check - just read differential channel 1 over and over
+while (True):
+    v = mcp3564_read_differential_channel_blocking(spi, 1)
+    print(f"open circuit voltage = {v:1.5f}")
+    time.sleep(0.1)
 
 calibration_data = {
 	'voltage_scale': 1.0,
@@ -134,4 +139,4 @@ def perform_measurements_and_log():
 		print("Log data saved!")
 
 
-perform_measurements_and_log()
+#perform_measurements_and_log()
