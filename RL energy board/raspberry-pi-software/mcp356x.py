@@ -52,10 +52,15 @@ def mcp3564_init(spi):
 
     # CONFIG2: don't do anything; fine with default settings.
 
-    # CONFIG3: conversion mode one-shot; default 24-bit ADC format; default CRC settings; OFFSET/GAINCAL disabled
-    buf = [mcp3564_make_cmd(CONFIG3, 'w'), (0b10 << 6) | (0b00 << 4) | 0]
+    # setup gaincal.
+    # Datasheet says that the error for a gain of 1x is ~+1.8%. Experimentally we found it to be in agreement at ~+1.77%.
+    # This value could use further tuning.
+    spi_xfer_loud(spi, [mcp3564_make_cmd(GAINCAL, 'w'), 0x7c, 0xab, 0xd8])
+    
+    # CONFIG3: conversion mode one-shot; default 24-bit ADC format; default CRC settings; OFFSET/GAINCAL enabled
+    buf = [mcp3564_make_cmd(CONFIG3, 'w'), (0b10 << 6) | (0b00 << 4) | (1 << 0)]
     spi_xfer_loud(spi, buf)
-
+    
     # Enable IRQ pin; note a quirk with this chip: either the IRQ output must be enabled or the IRQ pin must be
     # pulled up for ADC conversions to work
     buf = [mcp3564_make_cmd(IRQ, 'w'), (0b01 << 2) | (1 << 1) | (1 << 0)]
@@ -92,7 +97,7 @@ def mcp3564_read_differential_channel_blocking(spi, channel_no):
         tnow = time.clock_gettime(time.CLOCK_MONOTONIC)
         if ((tnow - tstart) > 0.01):
             print("warning: conversion timed out")
-            break
+            return 
         time.sleep(0.001)
 
     buf = [mcp3564_make_cmd(ADCDATA, 'r'), 0, 0, 0]
