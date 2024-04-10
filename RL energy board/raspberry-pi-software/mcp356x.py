@@ -75,7 +75,7 @@ def adc_result_to_voltage(buf, gain=1.0):
     i = (buf[0] << 16) | (buf[1] << 8) | (buf[2] << 0)
     return VREF * (i / 8388608) / gain
 
-def mcp3564_read_differential_channel_blocking(spi, channel_no):
+def mcp3564_read_differential_channel_blocking_raw(spi, channel_no):
     # setup mux
     chan_p = (2 * channel_no) & 0x0f
     chan_n = (chan_p + 1) & 0x0f
@@ -91,15 +91,17 @@ def mcp3564_read_differential_channel_blocking(spi, channel_no):
     while (True):
         buf = [mcp3564_make_cmd(IRQ, 'r'), 0]
         buf = spi.xfer(buf)
-        print(f"IRQ = {buf[1]:02x}")
         if (not(buf[1] & (1 << 6))):
             break
         tnow = time.clock_gettime(time.CLOCK_MONOTONIC)
         if ((tnow - tstart) > 0.01):
             print("warning: conversion timed out")
-            return 
+            return None
         time.sleep(0.001)
 
     buf = [mcp3564_make_cmd(ADCDATA, 'r'), 0, 0, 0]
     spi.xfer(buf)
-    return adc_result_to_voltage(buf[1:])
+    return buf[1:]
+
+def mcp3564_read_differential_channel_blocking(spi, channel_no):
+    return adc_result_to_voltage(mcp3564_read_differential_channel_blocking_raw(spi, channel_no))

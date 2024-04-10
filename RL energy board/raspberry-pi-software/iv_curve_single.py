@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import RPi.GPIO as GPIO
-import smbus2
+import smbus
 import spidev
 import time
 import json
@@ -15,7 +15,7 @@ from soilboard import *
 sb = SoilBoard()
 
 ad5272_address = 0x2c
-i2c = smbus2.SMBus(1)
+i2c = smbus.SMBus(1)
 
 spi = spidev.SpiDev()
 spi.open(0, 0)
