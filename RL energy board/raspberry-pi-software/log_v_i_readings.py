@@ -96,6 +96,7 @@ if not os.path.exists(file_path):
         csv_writer = csv.writer(file)
         csv_writer.writerow(["Time (s)", "Current (mA)", "Voltage (V)", "Power (mW)", "Resistance (Ohms)"])
 
+sb, spi, i2c = None, None, None
 try:
     sb = SoilBoard()
     i2c = smbus.SMBus(1)
@@ -111,7 +112,10 @@ try:
         sb.connect_mfc()
         log_measurements(spi, i2c, 0x2c, resistance, file_path)
 finally:
-    sb.cleanup()
-    spi.close()
-    i2c.close()
+    if sb:
+    	sb.cleanup()
+    if spi:
+    	spi.close()
+    if i2c:
+    	i2c.close()
     print("Measurement sequence completed.")
