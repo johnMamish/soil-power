@@ -2,7 +2,7 @@
 "Our" current raspberry pi has Serial: 000000007630b25e. We ought to move to a different solution for managing Raspi ip addresses, but this text doc will do for now. You can get a Raspberry Pi's serial number with `cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2`.
 
  * Make sure that you're connected to GaTech's VPN
- * connect with ssh -Y <your_username>@143.215.189.132. If you don't have an admin account on this Raspi, talk to John.
+ * connect with ssh -Y <your_username>@143.215.189.132. The Raspi should have a default lab username and password. If you don't have an admin account on this Raspi, talk to John.
 
 ## Raspberry Pi setup
 This project nominally uses Raspberry Pi OS on Raspberry Pi 4 model B. To set up a brand new raspberry pi, a few things need to be done:
@@ -10,8 +10,9 @@ This project nominally uses Raspberry Pi OS on Raspberry Pi 4 model B. To set up
  1. Use the official Raspberry Pi Imager tool to flash Raspberry Pi OS to an SD card
     
     Make sure to go into the advanced options panel and make the following changes:
-      - Add a default user with the lab username and password. If you're not sure what these are, ask John or Yaman.
-      - Enable SSH access via username & password.
+      - Select the "Enable SSH" option and choose the "Use password authentication" option
+      - Select the "Set username and password" option. Add a default user with the lab username and password. If you're not sure what these are, ask John or Yaman.
+      - Select "Configure wireless LAN". Under the options, configure SSID: GTother and Wireless LAN country: US. The password for GTother can be found on [Georgia Tech's LAWN portal](https://portal.lawn.gatech.edu/key) after you sign in under the "GTother PSK" tab.
     
  3. Open the SD card and navigate to the `bootfs` partition.
       - Uncomment the following 2 lines:
@@ -26,8 +27,6 @@ This project nominally uses Raspberry Pi OS on Raspberry Pi 4 model B. To set up
   4. Now you can boot up the Rapsberry Pi with the SD card you just made. You can plug it into a monitor and keyboard, or, because of the options we added, you can also access it with a UART adapter. This will let you connect it to LAWN (as described in the next section) without needing a monitor and keyboard.
 
 ### Connecting SBCs to GaTech's network
-Once you've 
-
 Assuming that the SBC already has a working Linux flashed to it and you have it connected to a screen and keyboard / mouse, you need to make sure to follow a few steps to connect a new SBC to GaTech's network so that it can be accessed over SSH:
 
  * Make sure sshd is enabled on startup.
