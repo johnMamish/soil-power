@@ -24,6 +24,12 @@ class PCB(Sensor):
         mcp3564_init(self.spi)
 
         time.sleep(0.03)
+        
+        buf = [mcp3564_make_cmd(CONFIG3, 'w'), (0b10 <<6) | (0b00 <<4) | (0 <<0)]
+        spi_xfer_loud(self.spi, buf)
+
+        self.wiper_pos = ad5272_resistance_to_wiper_position(np.nan)
+        actual_resistance = ad5272_wiper_position_to_resistance(np.nan)
 
         self.soilboard.disconnect_mfc()
 

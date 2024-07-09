@@ -71,7 +71,7 @@ def mcp3564_init(spi):
     spi_xfer_loud(spi, buf)
 
 def adc_result_to_voltage(buf, gain=1.0):
-    VREF = 5.232
+    VREF = 3.32
     i = (buf[0] << 16) | (buf[1] << 8) | (buf[2] << 0)
     return VREF * (i / 8388608) / gain
 
