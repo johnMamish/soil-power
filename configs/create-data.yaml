@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: create-data-dir
+spec:
+  selector:
+    matchLabels:
+      app: create-data-dir
+  template:
+    metadata:
+      labels:
+        app: create-data-dir
+    spec:
+      containers:
+        - name: create-dir
+          image: busybox
+          command: ['sh', '-c', 'mkdir -p /data']
+          volumeMounts:
+            - name: data
+              mountPath: /
+      volumes:
+        - name: data
+          hostPath:
+            path: /
+            type: Directory
+

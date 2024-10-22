@@ -12,7 +12,7 @@ spec:
         app: kmm-soilboard
     spec:
       nodeSelector:
-        group: rotis
+        group: dals
       containers:
         - name: soilboard-controller
           image: ananay22/kmm-soilboard:test
