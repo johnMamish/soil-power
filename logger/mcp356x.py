@@ -66,14 +66,15 @@ def mcp3564_init(spi):
     buf = [mcp3564_make_cmd(IRQ, 'w'), (0b01 << 2) | (1 << 1) | (1 << 0)]
     spi_xfer_loud(spi, buf)
 
-    # read IRQ register
-    buf = [mcp3564_make_cmd(IRQ, 'r'), 0]
+
     spi_xfer_loud(spi, buf)
 
 def adc_result_to_voltage(buf, gain=1.0):
     VREF = 3.32
-    i = (buf[0] << 16) | (buf[1] << 8) | (buf[2] << 0)
-    return VREF * (i / 8388608) / gain
+    #i = (buf[0] << 16) | (buf[1] << 8) | (buf[2] << 0)
+    import ctypes
+    _bin = "{0:08b}{1:08b}{2:08b}".format(*buf[::-1])
+    return VREF * (ctypes.c_int32(int((_bin[0] * 8) + _bin, 2)).value / 8388608) / gain
 
 def mcp3564_read_differential_channel_blocking_raw(spi, channel_no):
     # setup mux
