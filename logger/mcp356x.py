@@ -69,8 +69,7 @@ def mcp3564_init(spi):
 
     spi_xfer_loud(spi, buf)
 
-def adc_result_to_voltage(buf, gain=1.0):
-    VREF = 3.32
+def adc_result_to_voltage(buf, gain=1.0, VREF = 3.32):
     #i = (buf[0] << 16) | (buf[1] << 8) | (buf[2] << 0)
     import ctypes
     _bin = "{0:08b}{1:08b}{2:08b}".format(*buf[::-1])

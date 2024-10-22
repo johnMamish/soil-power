@@ -42,7 +42,7 @@ class PCB(Sensor):
         while v_raw is None:
             v_raw = mcp3564_read_differential_channel_blocking_raw(self.spi, 1)
         v_raw_int = (v_raw[0] << 16) | (v_raw[1] << 8) | (v_raw[2] << 0)
-        v = adc_result_to_voltage(v_raw)
+        v = adc_result_to_voltage(v_raw, VREF=5.3)
 
         i_raw = None
         while i_raw is None:

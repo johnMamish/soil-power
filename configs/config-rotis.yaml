@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kmm-soil-power
+spec:
+  selector:
+    matchLabels:
+      app: kmm-soilboard
+  template:
+    metadata:
+      labels:
+        app: kmm-soilboard
+    spec:
+      nodeSelector:
+        group: rotis
+      containers:
+        - name: soilboard-controller
+          image: ananay22/kmm-soilboard:test
+          imagePullPolicy: "Always"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: gpio
+              mountPath: /dev/gpiomem
+            - name: serial
+              mountPath: /dev
+      volumes:
+        - name: gpio
+          hostPath:
+            path: /dev/gpiomem
+            type: CharDevice
+        - name: serial
+          hostPath:
+            path: /dev
+            type: Directory
