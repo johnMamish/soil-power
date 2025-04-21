@@ -32,7 +32,7 @@ class PCB(Sensor):
 
 
     def read_adc(self, poll_time, adcNum = ADCNum.ADC0):
-	adc_chip_select(adcNum)
+        adc_chip_select(adcNum)
         resistance = str(np.nan)
         v_raw = None
         while v_raw is None:
@@ -59,7 +59,7 @@ class PCB(Sensor):
         )
 
     def read(self, poll_time):
-	return {
+        return {
             str(ADCNum.ADC0): self.read_adc(poll_time, ADCNum.ADC0),
             str(ADCNum.ADC1): self.read_adc(poll_time, ADCNum.ADC1),
         }
