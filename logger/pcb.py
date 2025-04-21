@@ -5,15 +5,14 @@ import numpy as np
 
 import spidev
 import smbus2
-from soilboard import *
 from mcp356x import *
 from ad5272 import *
+
+from adc_cs import ADCNum, chip_select as adc_chip_select
 
 class PCB(Sensor):
     def __init__(self, name):
         super().__init__(name)
-        self.soilboard = SoilBoard()
-        self.i2c = smbus2.SMBus(1)
         self.spi = spidev.SpiDev()
 
         self.ad5272_address = 0x2c
@@ -31,12 +30,9 @@ class PCB(Sensor):
         self.wiper_pos = ad5272_resistance_to_wiper_position(np.nan)
         actual_resistance = ad5272_wiper_position_to_resistance(np.nan)
 
-        self.soilboard.disconnect_mfc()
 
-        self.soilboard.select_rsel_highcurrent()
-
-
-    def read(self, poll_time):
+    def read_adc(self, poll_time, adcNum = ADCNum.ADC0):
+	adc_chip_select(adcNum)
         resistance = str(np.nan)
         v_raw = None
         while v_raw is None:
@@ -61,6 +57,14 @@ class PCB(Sensor):
                 poll_time=poll_time
             )
         )
+
+    def read(self, poll_time):
+	return {
+            str(ADCNum.ADC0): self.read_adc(poll_time, ADCNum.ADC0),
+            str(ADCNum.ADC1): self.read_adc(poll_time, ADCNum.ADC1),
+        }
+
+
 
 
 if __name__ == "__main__":
