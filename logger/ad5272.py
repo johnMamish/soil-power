@@ -1,4 +1,19 @@
 import smbus2
+from enum import Enum
+
+class ADNum(Enum):
+    AD0='AD0'
+    AD1='AD1'
+    AD2='AD2'
+    AD3='AD3'
+
+TCA_ADDR = 0x70
+
+def set_ad5272(ad_num=ADNum.AD0):
+    chip_address = 2 ** (int(str(ad_num)[-1]))
+    with smbus2.SMBus(1) as bus:
+        bus.write_byte_data(TCA_ADDR, 0, chip_address)
+
 
 def set_ad5272_resistor(i2c, addr, wiper_position):
     # unlock the resistor
@@ -41,3 +56,16 @@ def ad5272_read_resistor(i2c, addr):
     
     data = list(rd_msg)
     return (int(data[0]) << 8) | (int(data[1]))
+
+if __name__ == '__main__':
+    set_ad5272()
+    with smbus2.SMBus(1) as i2c:
+        print(ad5272_read_resistor(i2c, 0x2c))
+        set_ad5272_resistor(i2c,  0x2c, 0)
+        print(ad5272_read_resistor(i2c, 0x2c))
+
+    set_ad5272(ADNum.AD1)
+    with smbus2.SMBus(1) as i2c:
+        print(ad5272_read_resistor(i2c, 0x2c))
+        set_ad5272_resistor(i2c,  0x2c, 512)
+        print(ad5272_read_resistor(i2c, 0x2c))

@@ -27,12 +27,12 @@ class PCB(Sensor):
         buf = [mcp3564_make_cmd(CONFIG3, 'w'), (0b10 <<6) | (0b00 <<4) | (0 <<0)]
         spi_xfer_loud(self.spi, buf)
 
-        self.wiper_pos = ad5272_resistance_to_wiper_position(np.nan)
-        actual_resistance = ad5272_wiper_position_to_resistance(np.nan)
+        # self.wiper_pos = ad5272_resistance_to_wiper_position(np.nan)
+        # actual_resistance = ad5272_wiper_position_to_resistance(np.nan)
 
 
     def read_adc(self, poll_time, adcNum = ADCNum.ADC0):
-        adc_chip_select(adcNum)
+        # adc_chip_select(adcNum)
         resistance = str(np.nan)
         v_raw = None
         while v_raw is None:
@@ -69,6 +69,12 @@ class PCB(Sensor):
 
 if __name__ == "__main__":
     sensor = PCB("1")
+    GPIOs = [6, 23, 24, 25]
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)
+    for i in GPIOs:
+        GPIO.setup(i, GPIO.OUT)
+        GPIO.output(i, GPIO.LOW)
     while True:
         print(sensor.read(time.time()))
         time.sleep(0.05)
