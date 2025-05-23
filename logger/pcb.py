@@ -13,26 +13,35 @@ from adc_cs import ADCNum, chip_select as adc_chip_select
 class PCB(Sensor):
     def __init__(self, name):
         super().__init__(name)
-        self.spi = spidev.SpiDev()
-
-        self.ad5272_address = 0x2c
-        self.spi.open(0, 0)
-        self.spi.max_speed_hz = 1000000
-        self.spi.mode = 0
-        
-        mcp3564_init(self.spi)
-
-        time.sleep(0.03)
-        
-        buf = [mcp3564_make_cmd(CONFIG3, 'w'), (0b10 <<6) | (0b00 <<4) | (0 <<0)]
-        spi_xfer_loud(self.spi, buf)
-
+        self.curr_spi = None
+        self.spi = None
+        self.switch_spi()
         # self.wiper_pos = ad5272_resistance_to_wiper_position(np.nan)
         # actual_resistance = ad5272_wiper_position_to_resistance(np.nan)
+    def switch_spi(self, adcNum=ADCNum.ADC0):
+        if self.curr_spi == adcNum:
+            return
+        if not self.spi:
+            self.spi = spidev.SpiDev()
+        else:
+            self.spi.close()
+        if True:
+            self.ad5272_address = 0x2c
+            self.spi.open(0, 0 if adcNum == ADCNum.ADC0 else 1)
+            self.spi.max_speed_hz = 1000000
+            self.spi.mode = 0
+        
+            mcp3564_init(self.spi)
 
+            time.sleep(0.03)
+        
+            buf = [mcp3564_make_cmd(CONFIG3, 'w'), (0b10 <<6) | (0b00 <<4) | (0 <<0)]
+            spi_xfer_loud(self.spi, buf)
+            self.curr_spi = adcNum
 
     def read_adc(self, poll_time, adcNum = ADCNum.ADC0):
         # adc_chip_select(adcNum)
+        self.switch_spi(adcNum)
         resistance = str(np.nan)
         v_raw = None
         while v_raw is None:
@@ -77,4 +86,4 @@ if __name__ == "__main__":
         GPIO.output(i, GPIO.LOW)
     while True:
         print(sensor.read(time.time()))
-        time.sleep(0.05)
+        time.sleep(0.5)
